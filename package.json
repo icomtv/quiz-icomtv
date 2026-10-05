@@ -1,0 +1,6 @@
+{
+  "name": "icomtv-diagnostico",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18" }
+}

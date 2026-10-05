@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Diagnóstico da Sala de Espera · ICOM TV</title>
+<meta name="description" content="Responda 5 perguntas e veja, em reais, quanto a sua clínica deixa de faturar na sala de espera.">
+<meta name="theme-color" content="#181f39">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Quanto a sua sala de espera deixa de faturar?">
+<meta property="og:description" content="Pré-diagnóstico gratuito em 1 minuto. Descubra o potencial que a sua clínica perde enquanto o paciente aguarda.">
+<meta property="og:image" content="/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23be8217'/%3E%3Ctext x='16' y='22' font-family='Arial Black,Arial' font-weight='900' font-size='15' fill='%23181f39' text-anchor='middle'%3ETV%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#181f39; --navy-2:#11172c; --navy-3:#222b4d;
+  --gold:#be8217; --gold-soft:#f6ecd9;
+  --gray:#a8a5a5; --white:#ffffff;
+  --ink:#181f39; --muted:#5d6176; --line:#e3e2e2;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{
+  background:var(--navy);color:var(--white);
+  font-family:Montserrat,system-ui,sans-serif;font-size:17px;line-height:1.55;
+  -webkit-tap-highlight-color:transparent;
+  padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);
+}
+body::before{ /* forma arredondada da marca, ao fundo */
+  content:"";position:fixed;right:-140px;top:-120px;width:420px;height:420px;border-radius:64px;
+  border:2px solid rgba(190,130,23,.35);pointer-events:none;z-index:0
+}
+body::after{
+  content:"";position:fixed;left:-160px;bottom:-200px;width:420px;height:420px;border-radius:64px;
+  background:var(--navy-3);pointer-events:none;z-index:0
+}
+h1,h2,.big{font-weight:800;letter-spacing:-.025em;line-height:1.08;margin:0}
+.gold{color:var(--gold)}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+.app{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:22px 16px 32px;min-height:100vh;display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:4px 0 26px}
+.logo{height:54px;width:auto;display:block}
+.progress{display:flex;gap:6px;align-items:center;color:rgba(255,255,255,.7);font-size:14px;font-weight:500}
+.seg{width:28px;height:5px;border-radius:3px;background:rgba(255,255,255,.18)}
+.seg.on{background:var(--gold)}
+main{flex:1;display:flex;flex-direction:column;justify-content:center}
+
+/* Intro */
+.hero{padding:clamp(8px,3vw,24px) 0}
+.kicker{display:inline-block;background:var(--gold);color:var(--navy);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;padding:7px 14px;border-radius:8px}
+.hero h1{font-size:clamp(36px,7vw,72px);margin-top:22px;max-width:13em}
+.hero .lead{color:rgba(255,255,255,.82);font-weight:400;font-size:clamp(17px,2.2vw,20px);max-width:34em;margin:20px 0 0}
+.facts{display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:26px;color:rgba(255,255,255,.75);font-size:15px}
+.facts span::before{content:"★ ";color:var(--gold)}
+
+/* Painel de pergunta */
+.panel{background:var(--white);color:var(--ink);border-radius:28px;padding:clamp(24px,5vw,52px);box-shadow:0 30px 60px -30px rgba(0,0,0,.5)}
+.panel h2{font-size:clamp(25px,4vw,38px)}
+.hint{color:var(--muted);margin:12px 0 0;font-size:16px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:28px}
+.opt{text-align:left;background:#fafafa;border:2px solid var(--line);border-radius:18px;padding:18px 20px;min-height:88px;transition:border-color .15s,background .15s,transform .1s}
+.opt:active{transform:scale(.98)}
+.opt b{display:block;font-size:19px;font-weight:700;color:var(--navy)}
+.opt span{color:var(--muted);font-size:14px}
+.opt:hover{border-color:var(--gold)}
+.opt.sel{border-color:var(--gold);background:var(--gold-soft)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px}
+.link{background:none;border:0;color:var(--muted);text-decoration:underline;font-size:15px;padding:10px 2px}
+
+.btn{display:inline-flex;align-items:center;gap:10px;border:0;border-radius:14px;padding:18px 30px;font-weight:700;font-size:18px;background:var(--gold);color:var(--navy);margin-top:34px;transition:filter .15s,transform .1s}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:scale(.98)}
+.btn[disabled]{opacity:.6;cursor:wait}
+.btn.ghost{background:transparent;border:2px solid var(--line);color:var(--navy);margin-top:0}
+
+/* Resultado */
+.result{background:var(--navy-2);border:2px solid var(--gold);border-radius:28px;padding:clamp(24px,5vw,52px)}
+.result .tag{color:rgba(255,255,255,.8);font-size:16px;font-weight:500}
+.big{font-size:clamp(48px,11vw,104px);font-weight:900;color:var(--gold);margin:10px 0 6px;word-break:break-word}
+.sub{font-size:19px;color:rgba(255,255,255,.92)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:28px}
+.stat{background:rgba(255,255,255,.07);border-radius:18px;padding:18px}
+.stat b{display:block;font-size:28px;font-weight:800}
+.stat span{font-size:14px;color:rgba(255,255,255,.78)}
+.insight{margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.18);font-size:17px}
+.note{color:rgba(255,255,255,.6);font-size:13px;margin:16px 4px 0}
+
+.lead-box{margin-top:20px}
+.lead-box h2{font-size:clamp(23px,3.4vw,32px)}
+.fields{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:20px}
+.fields label{display:block;font-size:14px;font-weight:600;color:var(--navy);margin-bottom:6px}
+input{width:100%;background:#fafafa;border:2px solid var(--line);border-radius:14px;padding:15px 16px;min-height:54px;color:var(--ink)}
+input:focus{border-color:var(--gold);outline:none}
+input.err{border-color:#c0392b}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.row{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;align-items:center}
+.row .btn{margin-top:0}
+.consent{color:var(--muted);font-size:13px;margin:14px 0 0}
+.msg{margin-top:16px;font-weight:600}
+.msg.ok{color:#1e7a4f}
+.msg.bad{color:#c0392b}
+.hidden{display:none}
+footer{padding-top:26px;color:rgba(255,255,255,.5);font-size:13px;text-align:center}
+@media (max-width:620px){ .fields{grid-template-columns:1fr} }
+@media (max-width:520px){ .logo{height:44px} .seg{width:16px} .btn{width:100%;justify-content:center} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <img class="logo" src="/logo-white.svg" alt="ICOM Smart TV">
+    <div class="progress" id="progress" aria-live="polite"></div>
+  </header>
+  <main id="view"></main>
+  <footer>ICOM TV · A maior rede de TVs personalizadas da saúde no Brasil</footer>
+</div>
+
+<script>
+// ====== CONFIGURAÇÃO ======
+const CTA_FINAL = "Quero uma proposta da ICOM TV";
+const ENDPOINT = "/api/lead";
+
+// ====== PERGUNTAS ======
+const Q = [
+  {id:"pac", t:"Quantos pacientes passam pela sua sala de espera por mês?", h:"Some todos os atendimentos: consultas, retornos e acompanhantes que aguardam.",
+   o:[{l:"Até 100",s:"Consultório pequeno",v:80},{l:"100 a 300",s:"Clínica em crescimento",v:200},{l:"300 a 600",s:"Clínica consolidada",v:450},{l:"Mais de 600",s:"Alto fluxo",v:800}]},
+  {id:"min", t:"Quanto tempo, em média, cada pessoa espera antes de ser atendida?", h:"Pense no tempo entre chegar e entrar na sala de atendimento.",
+   o:[{l:"Menos de 5 min",s:"",v:4,m:.7},{l:"5 a 15 min",s:"",v:10,m:1},{l:"15 a 30 min",s:"",v:22,m:1.2},{l:"Mais de 30 min",s:"",v:35,m:1.4}]},
+  {id:"tela", t:"O que os pacientes fazem ou assistem enquanto esperam?", h:"Escolha o que mais acontece hoje.",
+   o:[{l:"TV aberta",s:"Novela, jornal, programa de auditório",v:"TV aberta",m:1.1},{l:"Celular",s:"Redes sociais, mensagens",v:"o celular",m:1.15},{l:"Revistas ou nada",s:"Ficam esperando",v:"revistas e o teto",m:1},{l:"Conteúdo da clínica",s:"Já mostramos nossos serviços",v:"conteúdo da clínica",m:.7}]},
+  {id:"div", t:"Você divulga seus procedimentos de maior valor enquanto eles aguardam?", h:"Alinhadores, implantes, lentes, harmonização e estética.",
+   o:[{l:"Não divulgo",s:"A sala não fala da clínica",v:"nao",g:1},{l:"Só um cartaz ou folder",s:"Algo estático",v:"cartaz",g:.75},{l:"Às vezes, em tela",s:"Sem rotina nem medição",v:"as vezes",g:.5},{l:"Sempre, com estratégia",s:"Com rotina e medição",v:"sempre",g:.25}]},
+  {id:"tk", t:"Qual o valor médio de um tratamento de alto valor na sua clínica?", h:"Média entre alinhadores, implantes e estética.",
+   o:[{l:"R$ 1.500",s:"Estética e clareamento",v:1500},{l:"R$ 4.000",s:"Facetas e alinhadores simples",v:4000},{l:"R$ 8.000",s:"Alinhadores e reabilitações",v:8000},{l:"R$ 15.000",s:"Implantes e protocolos",v:15000}]}
+];
+
+// Premissas (funil por paciente exposto): interesse 8% x agenda avaliação 30% x fecha 40%
+const FUNIL = .08 * .30 * .40;
+
+const view = document.getElementById("view");
+const progress = document.getElementById("progress");
+const UTM = Object.fromEntries([...new URLSearchParams(location.search)].filter(([k])=>/^utm_|^ref$/.test(k)));
+let step = -1, ans = {}, sent = false;
+
+const brl = n => n.toLocaleString("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0});
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function setProgress(){
+  if(step<0||step>=Q.length){progress.innerHTML="";return}
+  progress.innerHTML = Q.map((_,i)=>`<span class="seg ${i<=step?"on":""}"></span>`).join("")+`<span>${step+1} de ${Q.length}</span>`;
+}
+
+function intro(){
+  step=-1; ans={}; sent=false; setProgress();
+  view.innerHTML = `<section class="hero">
+    <span class="kicker">Pré-diagnóstico gratuito</span>
+    <h1>Quanto a sua sala de espera <span class="gold">deixa de faturar?</span></h1>
+    <p class="lead">Responda 5 perguntas rápidas e veja, em reais, o potencial que a sua clínica perde por não apresentar seus melhores tratamentos enquanto o paciente aguarda.</p>
+    <button class="btn" id="go" type="button">Começar o diagnóstico <span aria-hidden="true">→</span></button>
+    <div class="facts"><span>Leva 1 minuto</span><span>Resultado na hora</span><span>Sem compromisso</span></div>
+  </section>`;
+  document.getElementById("go").onclick=()=>{step=0;ask()};
+}
+
+function ask(){
+  setProgress();
+  const q=Q[step];
+  view.innerHTML = `<div class="panel">
+    <h2>${q.t}</h2><p class="hint">${q.h}</p>
+    <div class="opts" role="group" aria-label="${esc(q.t)}">${q.o.map((o,i)=>`<button class="opt ${ans[q.id]===o?"sel":""}" data-i="${i}" type="button"><b>${o.l}</b>${o.s?`<span>${o.s}</span>`:""}</button>`).join("")}</div>
+    <div class="nav"><button class="link" id="back" type="button">${step?"Voltar":"Início"}</button><span></span></div>
+  </div>`;
+  view.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    ans[q.id]=q.o[+b.dataset.i];
+    b.classList.add("sel");
+    setTimeout(()=>{step++; step<Q.length?ask():results()},220);
+  });
+  document.getElementById("back").onclick=()=>{step?(step--,ask()):intro()};
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function calc(){
+  const P=ans.pac.v, mins=ans.min.v, mm=ans.min.m, tm=ans.tela.m, gap=ans.div.g, tk=ans.tk.v;
+  const fech = P*FUNIL*mm*tm*gap;
+  const mensal = fech*tk;
+  return {mensal, anual:mensal*12, fech, horas:Math.round(P*mins/60)};
+}
+
+function results(){
+  step=Q.length; setProgress();
+  const r=calc();
+  const fechTxt = r.fech<1 ? "menos de 1" : "cerca de "+Math.round(r.fech);
+  const insight = ans.div.g<=.25
+    ? "Você já divulga com estratégia. O ganho agora está em medir e ampliar a oferta para quem espera."
+    : `Hoje esse tempo é ocupado por ${ans.tela.v}. É nele que o paciente poderia conhecer o seu tratamento de maior valor.`;
+  view.innerHTML = `
+  <div class="result">
+    <div class="tag">Potencial estimado que a clínica deixa de captar por mês</div>
+    <div class="big" id="num">R$ 0</div>
+    <div class="sub">Ou <b>${brl(r.anual)} por ano</b> em tratamentos que poderiam nascer na sala de espera.</div>
+    <div class="stats">
+      <div class="stat"><b>${r.horas} h</b><span>de atenção do paciente por mês, sem uma oferta sua</span></div>
+      <div class="stat"><b>${fechTxt}</b><span>tratamentos de alto valor a mais por mês</span></div>
+      <div class="stat"><b>${ans.pac.v}</b><span>pacientes por mês passando pela sala</span></div>
+    </div>
+    <div class="insight">${insight}</div>
+  </div>
+  <p class="note">Estimativa com base em premissas de mercado: 8% dos pacientes expostos demonstram interesse, 30% deles agendam avaliação e 40% fecham o tratamento. O resultado se ajusta ao tempo de espera, ao hábito de tela e ao nível atual de divulgação.</p>
+  <div class="panel lead-box" id="lead">
+    <h2>Receba uma proposta da ICOM TV para a sua sala de espera</h2>
+    <form id="form" novalidate>
+      <div class="fields">
+        <div><label for="n">Seu nome</label><input id="n" name="nome" autocomplete="name" required></div>
+        <div><label for="c">Nome da clínica</label><input id="c" name="clinica" autocomplete="organization"></div>
+        <div><label for="w">WhatsApp com DDD</label><input id="w" name="whatsapp" inputmode="tel" autocomplete="tel" placeholder="(11) 90000-0000" required></div>
+        <div><label for="cid">Cidade</label><input id="cid" name="cidade" autocomplete="address-level2"></div>
+      </div>
+      <input class="hp" id="site" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="row">
+        <button class="btn" id="send" type="submit">${CTA_FINAL}</button>
+        <button class="btn ghost" id="again" type="button">Refazer</button>
+      </div>
+      <p class="consent">Ao enviar, você autoriza a ICOM TV a entrar em contato pelo WhatsApp informado.</p>
+      <div class="msg hidden" id="msg" role="status"></div>
+    </form>
+  </div>`;
+  count(document.getElementById("num"), r.mensal);
+  document.getElementById("again").onclick=intro;
+  document.getElementById("form").onsubmit=e=>{e.preventDefault();submit(r)};
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+async function submit(r){
+  if(sent) return;
+  const $=id=>document.getElementById(id);
+  const n=$("n").value.trim(), c=$("c").value.trim(), w=$("w").value.trim(), cid=$("cid").value.trim();
+  $("n").classList.toggle("err",!n); $("w").classList.toggle("err",w.replace(/\D/g,"").length<10);
+  if(!n){$("n").focus();return}
+  if(w.replace(/\D/g,"").length<10){$("w").focus();return}
+  const btn=$("send"), msg=$("msg");
+  btn.disabled=true; btn.textContent="Enviando...";
+  const payload = {
+    nome:n, clinica:c, whatsapp:w, cidade:cid, site:$("site").value,
+    respostas:Object.fromEntries(Q.map(q=>[q.id,{pergunta:q.t,resposta:ans[q.id].l}])),
+    resultado:{mensal:Math.round(r.mensal),anual:Math.round(r.anual),tratamentos:+r.fech.toFixed(1),horas:r.horas},
+    utm:UTM, origem:location.href
+  };
+  try{
+    const res = await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    if(!res.ok) throw new Error(res.status);
+    sent=true;
+    msg.className="msg ok"; msg.textContent="Pronto! Nosso time vai falar com você pelo WhatsApp.";
+    btn.textContent="Enviado ✓";
+  }catch(e){
+    msg.className="msg bad"; msg.textContent="Não conseguimos enviar agora. Tente novamente em instantes.";
+    btn.disabled=false; btn.textContent=CTA_FINAL;
+  }
+}
+
+function count(el,to){
+  if(matchMedia("(prefers-reduced-motion:reduce)").matches){el.textContent=brl(to);return}
+  const t0=performance.now(), d=1400;
+  (function f(t){const p=Math.min(1,(t-t0)/d), e=1-Math.pow(1-p,3);
+    el.textContent=brl(to*e); if(p<1)requestAnimationFrame(f)})(t0);
+}
+
+intro();
+</script>
+</body>
+</html>
