@@ -127,6 +127,8 @@ footer{padding-top:26px;color:rgba(255,255,255,.5);font-size:13px;text-align:cen
 // ====== CONFIGURAÇÃO ======
 const CTA_FINAL = "Quero uma proposta da ICOM TV";
 const ENDPOINT = "/api/lead";
+// WhatsApp da ICOM TV (só números, com 55 + DDD). Preenchido = mostra o botão do WhatsApp no resultado.
+const WHATSAPP_ICOM = "";
 
 // ====== PERGUNTAS ======
 const Q = [
@@ -181,7 +183,7 @@ function ask(){
   view.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
     ans[q.id]=q.o[+b.dataset.i];
     b.classList.add("sel");
-    setTimeout(()=>{step++; step<Q.length?ask():results()},220);
+    setTimeout(()=>{step++; step<Q.length?ask():leadForm()},220);
   });
   document.getElementById("back").onclick=()=>{step?(step--,ask()):intro()};
   window.scrollTo({top:0,behavior:"smooth"});
@@ -194,16 +196,66 @@ function calc(){
   return {mensal, anual:mensal*12, fech, horas:Math.round(P*mins/60)};
 }
 
-function results(){
+function leadForm(){
   step=Q.length; setProgress();
+  view.innerHTML = `<div class="panel lead-box" id="lead">
+    <span class="kicker">Diagnóstico pronto</span>
+    <h2 style="margin-top:18px">Para quem liberamos o resultado?</h2>
+    <p class="hint">Preencha seus dados para ver quanto a sua sala de espera deixa de faturar.</p>
+    <form id="form" novalidate>
+      <div class="fields">
+        <div><label for="n">Seu nome</label><input id="n" name="nome" autocomplete="name" required></div>
+        <div><label for="c">Nome da clínica</label><input id="c" name="clinica" autocomplete="organization"></div>
+        <div><label for="w">WhatsApp com DDD</label><input id="w" name="whatsapp" inputmode="tel" autocomplete="tel" placeholder="(11) 90000-0000" required></div>
+        <div><label for="cid">Cidade</label><input id="cid" name="cidade" autocomplete="address-level2"></div>
+      </div>
+      <input class="hp" id="site" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="row">
+        <button class="btn" id="send" type="submit">Ver meu resultado <span aria-hidden="true">→</span></button>
+      </div>
+      <p class="consent">Ao enviar, você autoriza a ICOM TV a entrar em contato pelo WhatsApp informado.</p>
+      <div class="nav"><button class="link" id="back" type="button">Voltar</button><span></span></div>
+    </form>
+  </div>`;
+  document.getElementById("form").onsubmit=e=>{e.preventDefault();submit()};
+  document.getElementById("back").onclick=()=>{step=Q.length-1;ask()};
+  window.scrollTo({top:0,behavior:"smooth"});
+  document.getElementById("n").focus({preventScroll:true});
+}
+
+async function submit(){
+  if(sent) return;
+  const $=id=>document.getElementById(id);
+  const n=$("n").value.trim(), c=$("c").value.trim(), w=$("w").value.trim(), cid=$("cid").value.trim();
+  $("n").classList.toggle("err",!n); $("w").classList.toggle("err",w.replace(/\D/g,"").length<10);
+  if(!n){$("n").focus();return}
+  if(w.replace(/\D/g,"").length<10){$("w").focus();return}
   const r=calc();
+  const btn=$("send");
+  btn.disabled=true; btn.textContent="Calculando...";
+  const payload = {
+    nome:n, clinica:c, whatsapp:w, cidade:cid, site:$("site").value,
+    respostas:Object.fromEntries(Q.map(q=>[q.id,{pergunta:q.t,resposta:ans[q.id].l}])),
+    resultado:{mensal:Math.round(r.mensal),anual:Math.round(r.anual),tratamentos:+r.fech.toFixed(1),horas:r.horas},
+    utm:UTM, origem:location.href
+  };
+  try{
+    const res = await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    if(!res.ok) throw new Error(res.status);
+  }catch(e){ console.error("lead não enviado", e) } // a pessoa vê o resultado mesmo se o envio falhar
+  sent=true;
+  results(r,{n,c});
+}
+
+function results(r,lead){
   const fechTxt = r.fech<1 ? "menos de 1" : "cerca de "+Math.round(r.fech);
   const insight = ans.div.g<=.25
     ? "Você já divulga com estratégia. O ganho agora está em medir e ampliar a oferta para quem espera."
     : `Hoje esse tempo é ocupado por ${ans.tela.v}. É nele que o paciente poderia conhecer o seu tratamento de maior valor.`;
+  const partes = lead.n.split(/\s+/), primeiro = esc(/^dr?a?\.?$/i.test(partes[0]) && partes[1] ? partes[0]+" "+partes[1] : partes[0]);
   view.innerHTML = `
   <div class="result">
-    <div class="tag">Potencial estimado que a clínica deixa de captar por mês</div>
+    <div class="tag">${primeiro}, este é o potencial estimado que a clínica deixa de captar por mês</div>
     <div class="big" id="num">R$ 0</div>
     <div class="sub">Ou <b>${brl(r.anual)} por ano</b> em tratamentos que poderiam nascer na sala de espera.</div>
     <div class="stats">
@@ -214,55 +266,23 @@ function results(){
     <div class="insight">${insight}</div>
   </div>
   <p class="note">Estimativa com base em premissas de mercado: 8% dos pacientes expostos demonstram interesse, 30% deles agendam avaliação e 40% fecham o tratamento. O resultado se ajusta ao tempo de espera, ao hábito de tela e ao nível atual de divulgação.</p>
-  <div class="panel lead-box" id="lead">
-    <h2>Receba uma proposta da ICOM TV para a sua sala de espera</h2>
-    <form id="form" novalidate>
-      <div class="fields">
-        <div><label for="n">Seu nome</label><input id="n" name="nome" autocomplete="name" required></div>
-        <div><label for="c">Nome da clínica</label><input id="c" name="clinica" autocomplete="organization"></div>
-        <div><label for="w">WhatsApp com DDD</label><input id="w" name="whatsapp" inputmode="tel" autocomplete="tel" placeholder="(11) 90000-0000" required></div>
-        <div><label for="cid">Cidade</label><input id="cid" name="cidade" autocomplete="address-level2"></div>
-      </div>
-      <input class="hp" id="site" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
-      <div class="row">
-        <button class="btn" id="send" type="submit">${CTA_FINAL}</button>
-        <button class="btn ghost" id="again" type="button">Refazer</button>
-      </div>
-      <p class="consent">Ao enviar, você autoriza a ICOM TV a entrar em contato pelo WhatsApp informado.</p>
-      <div class="msg hidden" id="msg" role="status"></div>
-    </form>
+  <div class="panel lead-box">
+    <h2>Quer transformar esse potencial em resultado?</h2>
+    <p class="hint">${WHATSAPP_ICOM ? "Fale com um especialista da ICOM TV e receba uma proposta para a sua sala de espera." : "Nosso time vai falar com você pelo WhatsApp informado com uma proposta para a sua sala de espera."}</p>
+    <div class="row">
+      ${WHATSAPP_ICOM ? `<button class="btn" id="wa" type="button">${CTA_FINAL}</button>` : ""}
+      <button class="btn ghost" id="again" type="button">Refazer o diagnóstico</button>
+    </div>
   </div>`;
   count(document.getElementById("num"), r.mensal);
   document.getElementById("again").onclick=intro;
-  document.getElementById("form").onsubmit=e=>{e.preventDefault();submit(r)};
+  if(WHATSAPP_ICOM) document.getElementById("wa").onclick=()=>abrirWhats(lead.n,lead.c,r);
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
-async function submit(r){
-  if(sent) return;
-  const $=id=>document.getElementById(id);
-  const n=$("n").value.trim(), c=$("c").value.trim(), w=$("w").value.trim(), cid=$("cid").value.trim();
-  $("n").classList.toggle("err",!n); $("w").classList.toggle("err",w.replace(/\D/g,"").length<10);
-  if(!n){$("n").focus();return}
-  if(w.replace(/\D/g,"").length<10){$("w").focus();return}
-  const btn=$("send"), msg=$("msg");
-  btn.disabled=true; btn.textContent="Enviando...";
-  const payload = {
-    nome:n, clinica:c, whatsapp:w, cidade:cid, site:$("site").value,
-    respostas:Object.fromEntries(Q.map(q=>[q.id,{pergunta:q.t,resposta:ans[q.id].l}])),
-    resultado:{mensal:Math.round(r.mensal),anual:Math.round(r.anual),tratamentos:+r.fech.toFixed(1),horas:r.horas},
-    utm:UTM, origem:location.href
-  };
-  try{
-    const res = await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-    if(!res.ok) throw new Error(res.status);
-    sent=true;
-    msg.className="msg ok"; msg.textContent="Pronto! Nosso time vai falar com você pelo WhatsApp.";
-    btn.textContent="Enviado ✓";
-  }catch(e){
-    msg.className="msg bad"; msg.textContent="Não conseguimos enviar agora. Tente novamente em instantes.";
-    btn.disabled=false; btn.textContent=CTA_FINAL;
-  }
+function abrirWhats(n,c,r){
+  const txt = `Olá! Sou ${n}${c?` da ${c}`:""}. Fiz o diagnóstico da sala de espera e o potencial estimado foi de ${brl(r.mensal)} por mês. Quero uma proposta da ICOM TV.`;
+  location.href = `https://wa.me/${WHATSAPP_ICOM}?text=${encodeURIComponent(txt)}`;
 }
 
 function count(el,to){
