@@ -35,6 +35,28 @@ export default async function handler(req, res) {
   const wa = `https://wa.me/${digits.length <= 11 ? "55" + digits : digits}`;
   const quando = new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
 
+  // Webhook do Workflow Builder (hooks.slack.com/triggers/... ou /workflows/...):
+  // aceita só variáveis de texto, que você encaixa na mensagem dentro do fluxo.
+  const isWorkflow = /hooks\.slack\.com\/(triggers|workflows)\//.test(webhook);
+  const respostasTxt = Object.values(b.respostas || {})
+    .slice(0, 10)
+    .map(x => `• ${clean(x.pergunta, 140)}: ${clean(x.resposta, 60)}`)
+    .join("\n");
+  const workflowVars = {
+    nome,
+    clinica,
+    whatsapp,
+    link_whatsapp: wa,
+    cidade,
+    potencial_mensal: brl(r.mensal),
+    potencial_anual: brl(r.anual),
+    tratamentos_mes: Number(r.tratamentos || 0).toLocaleString("pt-BR"),
+    horas_espera_mes: `${Number(r.horas || 0)} h`,
+    respostas: respostasTxt || "—",
+    origem: utm || "direto",
+    data: quando,
+  };
+
   const message = {
     text: `Novo lead do diagnóstico: ${nome} (${clinica}) · ${brl(r.mensal)}/mês`,
     blocks: [
@@ -70,7 +92,7 @@ export default async function handler(req, res) {
     const r2 = await fetch(webhook, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(message),
+      body: JSON.stringify(isWorkflow ? workflowVars : message),
     });
     if (!r2.ok) throw new Error(`slack ${r2.status}`);
     return res.status(200).json({ ok: true });
