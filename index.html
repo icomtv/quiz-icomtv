@@ -103,7 +103,7 @@ input.err{border-color:#c0392b}
 .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;align-items:center}
 .row .btn{margin-top:0}
 .consent{color:var(--muted);font-size:13px;margin:14px 0 0}
-.aceite{display:flex;gap:12px;align-items:flex-start;margin-top:18px;padding:14px 16px;border:2px solid var(--line);border-radius:14px;background:#fafafa;cursor:pointer;color:var(--ink);font-size:15px;line-height:1.45}
+.aceite{display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:14px 16px;border:2px solid var(--line);border-radius:14px;background:#fafafa;cursor:pointer;color:var(--ink);font-size:15px;line-height:1.45}
 .aceite input{width:22px;height:22px;min-height:0;padding:0;margin:1px 0 0;flex:none;accent-color:var(--gold);cursor:pointer}
 .aceite.err{border-color:#c0392b;background:#fdf1ef}
 .aceite-erro{color:#c0392b;font-size:14px;font-weight:600;margin:8px 2px 0}
@@ -218,7 +218,11 @@ function leadForm(){
         <input type="checkbox" id="aceite" name="aceite" required>
         <span>Autorizo a ICOM TV a entrar em contato comigo pelo WhatsApp informado para apresentar o diagnóstico e uma proposta para a minha clínica.</span>
       </label>
-      <p class="aceite-erro hidden" id="aceiteErro" role="alert">Para ver o resultado, marque a autorização de contato.</p>
+      <label class="aceite" id="ciente2Box" for="ciente2">
+        <input type="checkbox" id="ciente2" name="ciente_estimativa" required>
+        <span>Estou ciente de que este pré-diagnóstico é uma estimativa baseada em premissas de mercado. Ele indica uma ideia da receita que a sala de espera pode estar deixando de gerar e não identifica problemas específicos da minha clínica.</span>
+      </label>
+      <p class="aceite-erro hidden" id="aceiteErro" role="alert">Para ver o resultado, marque as duas confirmações acima.</p>
       <div class="row">
         <button class="btn" id="send" type="submit">Ver meu resultado <span aria-hidden="true">→</span></button>
       </div>
@@ -226,7 +230,10 @@ function leadForm(){
     </form>
   </div>`;
   document.getElementById("form").onsubmit=e=>{e.preventDefault();submit()};
-  document.getElementById("aceite").onchange=e=>{if(e.target.checked){document.getElementById("aceiteBox").classList.remove("err");document.getElementById("aceiteErro").classList.add("hidden")}};
+  [["aceite","aceiteBox"],["ciente2","ciente2Box"]].forEach(([i,box])=>document.getElementById(i).onchange=e=>{
+    if(e.target.checked) document.getElementById(box).classList.remove("err");
+    if(document.getElementById("aceite").checked&&document.getElementById("ciente2").checked) document.getElementById("aceiteErro").classList.add("hidden");
+  });
   document.getElementById("back").onclick=()=>{step=Q.length-1;ask()};
   window.scrollTo({top:0,behavior:"smooth"});
   document.getElementById("n").focus({preventScroll:true});
@@ -239,13 +246,15 @@ async function submit(){
   $("n").classList.toggle("err",!n); $("w").classList.toggle("err",w.replace(/\D/g,"").length<10);
   if(!n){$("n").focus();return}
   if(w.replace(/\D/g,"").length<10){$("w").focus();return}
-  if(!$("aceite").checked){$("aceiteBox").classList.add("err");$("aceiteErro").classList.remove("hidden");$("aceite").focus();return}
+  const faltando=[["aceite","aceiteBox"],["ciente2","ciente2Box"]].filter(([i])=>!$(i).checked);
+  faltando.forEach(([,box])=>$(box).classList.add("err"));
+  if(faltando.length){$("aceiteErro").classList.remove("hidden");$(faltando[0][0]).focus();return}
   const r=calc();
   const btn=$("send");
   btn.disabled=true; btn.textContent="Calculando...";
   const payload = {
     nome:n, clinica:c, whatsapp:w, cidade:cid, site:$("site").value,
-    aceite:true, aceite_texto:"Autorizo a ICOM TV a entrar em contato comigo pelo WhatsApp informado para apresentar o diagnóstico e uma proposta para a minha clínica.", aceite_em:new Date().toISOString(),
+    aceite:true, aceite_texto:"Autorizo a ICOM TV a entrar em contato comigo pelo WhatsApp informado para apresentar o diagnóstico e uma proposta para a minha clínica.", aceite_em:new Date().toISOString(), ciente_estimativa:true, ciente_texto:"Estou ciente de que este pré-diagnóstico é uma estimativa baseada em premissas de mercado. Ele indica uma ideia da receita que a sala de espera pode estar deixando de gerar e não identifica problemas específicos da minha clínica.",
     respostas:Object.fromEntries(Q.map(q=>[q.id,{pergunta:q.t,resposta:ans[q.id].l}])),
     resultado:{mensal:Math.round(r.mensal),anual:Math.round(r.anual),tratamentos:+r.fech.toFixed(1),horas:r.horas},
     utm:UTM, origem:location.href

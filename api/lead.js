@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   if (b.site) return res.status(200).json({ ok: true });
 
   // Sem aceite de contato, o lead não é registrado.
-  if (b.aceite !== true) return res.status(400).json({ error: "sem_aceite" });
+  if (b.aceite !== true || b.ciente_estimativa !== true) return res.status(400).json({ error: "sem_aceite" });
   const aceiteEm = new Date(b.aceite_em || Date.now()).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
 
   const nome = clean(b.nome, 80);
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
     horas_espera_mes: `${Number(r.horas || 0)} h`,
     respostas: respostasTxt || "—",
     origem: utm || "direto",
-    data: `${quando} · Aceite de contato: SIM (${aceiteEm})`,
+    data: `${quando} · Aceite de contato: SIM · Ciente de que é estimativa: SIM (${aceiteEm})`,
   };
 
   const message = {
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
       { type: "section", text: { type: "mrkdwn", text: `*Respostas*\n${respostas || "—"}` } },
       {
         type: "context",
-        elements: [{ type: "mrkdwn", text: `${quando}  ·  ✅ Aceite de contato em ${aceiteEm}${utm ? "  ·  " + utm : ""}` }],
+        elements: [{ type: "mrkdwn", text: `${quando}  ·  ✅ Aceite de contato e ciência da estimativa em ${aceiteEm}${utm ? "  ·  " + utm : ""}` }],
       },
     ],
   };
