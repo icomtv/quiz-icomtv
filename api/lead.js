@@ -16,6 +16,10 @@ export default async function handler(req, res) {
   // Campo isca: robôs preenchem, pessoas não veem. Responde OK e descarta.
   if (b.site) return res.status(200).json({ ok: true });
 
+  // Sem aceite de contato, o lead não é registrado.
+  if (b.aceite !== true) return res.status(400).json({ error: "sem_aceite" });
+  const aceiteEm = new Date(b.aceite_em || Date.now()).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
+
   const nome = clean(b.nome, 80);
   const whatsapp = clean(b.whatsapp, 30);
   const digits = whatsapp.replace(/\D/g, "");
@@ -54,7 +58,7 @@ export default async function handler(req, res) {
     horas_espera_mes: `${Number(r.horas || 0)} h`,
     respostas: respostasTxt || "—",
     origem: utm || "direto",
-    data: quando,
+    data: `${quando} · Aceite de contato: SIM (${aceiteEm})`,
   };
 
   const message = {
@@ -83,7 +87,7 @@ export default async function handler(req, res) {
       { type: "section", text: { type: "mrkdwn", text: `*Respostas*\n${respostas || "—"}` } },
       {
         type: "context",
-        elements: [{ type: "mrkdwn", text: `${quando}${utm ? "  ·  " + utm : ""}` }],
+        elements: [{ type: "mrkdwn", text: `${quando}  ·  ✅ Aceite de contato em ${aceiteEm}${utm ? "  ·  " + utm : ""}` }],
       },
     ],
   };

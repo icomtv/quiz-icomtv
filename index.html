@@ -103,6 +103,10 @@ input.err{border-color:#c0392b}
 .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;align-items:center}
 .row .btn{margin-top:0}
 .consent{color:var(--muted);font-size:13px;margin:14px 0 0}
+.aceite{display:flex;gap:12px;align-items:flex-start;margin-top:18px;padding:14px 16px;border:2px solid var(--line);border-radius:14px;background:#fafafa;cursor:pointer;color:var(--ink);font-size:15px;line-height:1.45}
+.aceite input{width:22px;height:22px;min-height:0;padding:0;margin:1px 0 0;flex:none;accent-color:var(--gold);cursor:pointer}
+.aceite.err{border-color:#c0392b;background:#fdf1ef}
+.aceite-erro{color:#c0392b;font-size:14px;font-weight:600;margin:8px 2px 0}
 .msg{margin-top:16px;font-weight:600}
 .msg.ok{color:#1e7a4f}
 .msg.bad{color:#c0392b}
@@ -210,14 +214,19 @@ function leadForm(){
         <div><label for="cid">Cidade</label><input id="cid" name="cidade" autocomplete="address-level2"></div>
       </div>
       <input class="hp" id="site" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <label class="aceite" id="aceiteBox" for="aceite">
+        <input type="checkbox" id="aceite" name="aceite" required>
+        <span>Autorizo a ICOM TV a entrar em contato comigo pelo WhatsApp informado para apresentar o diagnóstico e uma proposta para a minha clínica.</span>
+      </label>
+      <p class="aceite-erro hidden" id="aceiteErro" role="alert">Para ver o resultado, marque a autorização de contato.</p>
       <div class="row">
         <button class="btn" id="send" type="submit">Ver meu resultado <span aria-hidden="true">→</span></button>
       </div>
-      <p class="consent">Ao enviar, você autoriza a ICOM TV a entrar em contato pelo WhatsApp informado.</p>
       <div class="nav"><button class="link" id="back" type="button">Voltar</button><span></span></div>
     </form>
   </div>`;
   document.getElementById("form").onsubmit=e=>{e.preventDefault();submit()};
+  document.getElementById("aceite").onchange=e=>{if(e.target.checked){document.getElementById("aceiteBox").classList.remove("err");document.getElementById("aceiteErro").classList.add("hidden")}};
   document.getElementById("back").onclick=()=>{step=Q.length-1;ask()};
   window.scrollTo({top:0,behavior:"smooth"});
   document.getElementById("n").focus({preventScroll:true});
@@ -230,11 +239,13 @@ async function submit(){
   $("n").classList.toggle("err",!n); $("w").classList.toggle("err",w.replace(/\D/g,"").length<10);
   if(!n){$("n").focus();return}
   if(w.replace(/\D/g,"").length<10){$("w").focus();return}
+  if(!$("aceite").checked){$("aceiteBox").classList.add("err");$("aceiteErro").classList.remove("hidden");$("aceite").focus();return}
   const r=calc();
   const btn=$("send");
   btn.disabled=true; btn.textContent="Calculando...";
   const payload = {
     nome:n, clinica:c, whatsapp:w, cidade:cid, site:$("site").value,
+    aceite:true, aceite_texto:"Autorizo a ICOM TV a entrar em contato comigo pelo WhatsApp informado para apresentar o diagnóstico e uma proposta para a minha clínica.", aceite_em:new Date().toISOString(),
     respostas:Object.fromEntries(Q.map(q=>[q.id,{pergunta:q.t,resposta:ans[q.id].l}])),
     resultado:{mensal:Math.round(r.mensal),anual:Math.round(r.anual),tratamentos:+r.fech.toFixed(1),horas:r.horas},
     utm:UTM, origem:location.href
